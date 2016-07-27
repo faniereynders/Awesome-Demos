@@ -21,11 +21,21 @@ namespace AwesomeBot
         /// </summary>
         public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
         {
+            var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
             if (activity.Type == ActivityTypes.Message)
             {
+                if (activity.Text.ToLower() == "hello")
+                {
+                    
+                    
+                    var reply = activity.CreateReply($"Well hello there {activity.From.Name}");
+                    await connector.Conversations.ReplyToActivityAsync(reply);
+                }
+                else
+                {
+                    await Conversation.SendAsync(activity, () => new AwesomeLuisDialog());
 
-
-                await Conversation.SendAsync(activity, () => new AwesomeLuisDialog());
+                }
 
 
 
@@ -36,6 +46,11 @@ namespace AwesomeBot
                 //// return our reply to the user
                 //Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
                 //await connector.Conversations.ReplyToActivityAsync(reply);
+            }
+            else if (activity.Type == ActivityTypes.Typing)
+            {
+                var reply = activity.CreateReply($":)");
+                await connector.Conversations.ReplyToActivityAsync(reply);
             }
             else
             {
