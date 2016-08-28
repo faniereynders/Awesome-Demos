@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.Description;
 using Microsoft.Bot.Connector;
 
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.Dialogs;
+using System.Drawing;
 
 namespace AwesomeBot
 {
@@ -19,47 +17,66 @@ namespace AwesomeBot
         /// POST: api/Messages
         /// Receive a message from a user and reply to it
         /// </summary>
-        public async Task<HttpResponseMessage> Post([FromBody]Activity activity)
+        public async Task<IHttpActionResult> Post([FromBody]Activity activity)
         {
             var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
+
             if (activity.Type == ActivityTypes.Message)
             {
-                if (activity.Text.ToLower() == "hello")
+                if (activity.Attachments != null && activity.Attachments.Any(_=>_.ContentType.StartsWith("image")))
                 {
-                    
-                    
-                    var reply = activity.CreateReply($"Well hello there {activity.From.Name}");
-                    await connector.Conversations.ReplyToActivityAsync(reply);
+                    await imageReceived(connector, activity);
                 }
                 else
                 {
+                    
                     await Conversation.SendAsync(activity, () => new AwesomeLuisDialog());
-
+                    
                 }
-
-
-
-                //ConnectorClient connector = new ConnectorClient(new Uri(activity.ServiceUrl));
-                //// calculate something for us to return
-                //int length = (activity.Text ?? string.Empty).Length;
-
-                //// return our reply to the user
-                //Activity reply = activity.CreateReply($"You sent {activity.Text} which was {length} characters");
-                //await connector.Conversations.ReplyToActivityAsync(reply);
-            }
-            else if (activity.Type == ActivityTypes.Typing)
-            {
-                var reply = activity.CreateReply($":)");
-                await connector.Conversations.ReplyToActivityAsync(reply);
+                
             }
             else
             {
                 HandleSystemMessage(activity);
             }
-            var response = Request.CreateResponse(HttpStatusCode.OK);
-            return response;
+           
+            return Ok();
         }
 
+        private async Task imageReceived(IConnectorClient connector, Activity activity)
+        {
+            var reply = activity.CreateReply($"**Yay!** It seems that you have sent me a picture. Let me take a look... (gift)");
+            await connector.Conversations.ReplyToActivityAsync(reply);
+
+            var token = string.Empty;
+
+           
+                var imageResult = await ImageAnalyzer.DescribeImage(activity.Attachments[0].ContentUrl, activity.ServiceUrl);
+
+            var color = imageResult.Color.DominantColorForeground;
+
+
+            var colorHex = imageResult.Color.AccentColor;// string.Format("{0:x6}", Color.FromName(color).ToArgb() & 0xFFFFFF);
+
+                await connector.Conversations.ReplyToActivityAsync(activity.CreateReply($@"I see {imageResult.Description.Captions[0].Text}."));
+
+                await Task.Run(() =>
+                {
+                    var hubMessage = new
+                    {
+                        command = "set-color",
+                        payload = colorHex
+                    };
+                    AzureIoTHub.SendMessageAsync(JsonConvert.SerializeObject(hubMessage));
+                });
+                await connector.Conversations.ReplyToActivityAsync(activity.CreateReply($@"Now look how I work my IoT magic using the accent color of this image... (holidayspirit)"));
+
+            
+
+
+
+
+        }
         private Activity HandleSystemMessage(Activity message)
         {
             if (message.Type == ActivityTypes.DeleteUserData)
