@@ -17,7 +17,10 @@ namespace AwesomeBot
     [LuisModel("8279aa14-ee0f-42b9-b17b-e826e42c34d9", "8369d13268d14267a0218c223c1e61f7")]
     public class AwesomeLuisDialog : LuisDialog<object>
     {
-
+        protected override Task MessageReceived(IDialogContext context, IAwaitable<IMessageActivity> item)
+        {
+            return base.MessageReceived(context, item);
+        }
         [LuisIntent("")]
         public async Task None(IDialogContext context, LuisResult result)
         {
@@ -156,7 +159,7 @@ namespace AwesomeBot
                 var activity = context.MakeMessage();
 
                 activity.Text = text;
-                activity.Attachments = new List<Attachment>() { new Attachment(contentType: "image/jpeg", contentUrl: winner.photo.photo_link) };
+                activity.Attachments = new List<Attachment>() { new Attachment(contentType: "image/jpg", contentUrl: winner.photo.photo_link) };
                 // activity.Recipient = context.
 
 

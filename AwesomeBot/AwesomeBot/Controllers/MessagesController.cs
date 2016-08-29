@@ -10,7 +10,7 @@ using System.Drawing;
 
 namespace AwesomeBot
 {
-    [BotAuthentication]
+   // [BotAuthentication]
     public class MessagesController : ApiController
     {
         /// <summary>

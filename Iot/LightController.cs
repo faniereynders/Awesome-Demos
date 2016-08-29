@@ -1,0 +1,35 @@
+﻿using Q42.HueApi;
+using Q42.HueApi.Interfaces;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace WebCamSample
+{
+    public static class LightController
+    {
+        public static async Task SetColor(string color, bool flash)
+        {
+            var client = getClient();
+            client.Initialize("tl3r44HUQ94Mp8uOuHOe7J40Hd2wL5LtgVX9vISI");
+            var command = new LightCommand();
+
+            if (flash)
+            {
+                command.Alert = Alert.Multiple;
+            }
+            
+
+            command.TurnOn().SetColor(color);
+            await client.SendCommandAsync(command);
+        }
+
+        private static ILocalHueClient getClient()
+        {
+            //var locator = new HttpBridgeLocator();
+            //var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5));
+            //var ip = bridges.First();
+            return new LocalHueClient("192.168.23.52");
+        }
+    }
+}
