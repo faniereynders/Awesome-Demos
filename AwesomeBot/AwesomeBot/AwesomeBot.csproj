@@ -164,38 +164,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="bot.gif" />
     <Content Include="default.htm" />
     <Content Include="Global.asax" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App_Start\WebApiConfig.cs" />
-    <Compile Include="AwesomeLuisDialog.cs" />
-    <Compile Include="AzureIoTHub.cs" />
+    <Compile Include="Dialogs\AwesomeLuisDialog.cs" />
+    <Compile Include="Infrastructure\AzureIoTHub.cs" />
     <Compile Include="Controllers\MessagesController.cs" />
     <Compile Include="Controllers\WebhooksController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="HubMessage.cs" />
-    <Compile Include="ImageAnalyzer.cs" />
+    <Compile Include="Models\HubMessage.cs" />
+    <Compile Include="Infrastructure\ImageAnalyzer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TextAnalysisModels.cs" />
+    <Compile Include="Models\TextAnalysisModels.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\AwesomeBot - Web Deploy.pubxml" />
-    <Content Include="Service References\fanie-hub\ConnectedService.json" />
     <Content Include="people.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="keys.config" />
-    <None Include="Web.Debug.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
-    <None Include="Web.Release.config">
-      <DependentUpon>Web.config</DependentUpon>
-    </None>
   </ItemGroup>
   <ItemGroup />
   <PropertyGroup>

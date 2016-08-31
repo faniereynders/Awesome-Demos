@@ -6,11 +6,12 @@ using Microsoft.Bot.Connector;
 
 using Newtonsoft.Json;
 using Microsoft.Bot.Builder.Dialogs;
-using System.Drawing;
+using AwesomeBot.Dialogs;
+using AwesomeBot.Infrastructure;
 
 namespace AwesomeBot
 {
-   // [BotAuthentication]
+    // [BotAuthentication]
     public class MessagesController : ApiController
     {
         /// <summary>

@@ -1,4 +1,6 @@
-﻿using Microsoft.Bot.Builder.Dialogs;
+﻿using AwesomeBot.Infrastructure;
+using AwesomeBot.Models;
+using Microsoft.Bot.Builder.Dialogs;
 using Microsoft.Bot.Builder.Luis;
 using Microsoft.Bot.Builder.Luis.Models;
 using Microsoft.Bot.Connector;
@@ -7,13 +9,12 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace AwesomeBot
+namespace AwesomeBot.Dialogs
 {
     [Serializable]
     public class AwesomeLuisDialog : LuisDialog<object>
@@ -86,10 +87,10 @@ namespace AwesomeBot
                         hubMessage.Payload = "#ff0000";
                         hubMessage.Command = "flash-color";
                     }
-                    await Task.Run(() =>
+                    await Task.Run(async () =>
                     {
 
-                        AzureIoTHub.SendMessageAsync(JsonConvert.SerializeObject(hubMessage));
+                        await AzureIoTHub.SendMessageAsync(JsonConvert.SerializeObject(hubMessage));
                     });
                 }
                 
@@ -133,6 +134,7 @@ namespace AwesomeBot
             else
             {
                 await context.PostAsync("I'm already analyzing emotions. Tell me when to stop...");
+                context.Wait(MessageReceived);
             }
             
         }
@@ -147,6 +149,7 @@ namespace AwesomeBot
             };
             await AzureIoTHub.SendMessageAsync(JsonConvert.SerializeObject(hubMessage));
             await context.PostAsync("I've stopped tracking emotions.");
+            context.Wait(MessageReceived);
         }
         
         [LuisIntent("select_winner")]
