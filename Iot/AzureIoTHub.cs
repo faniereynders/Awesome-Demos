@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Devices.Client;
 using Newtonsoft.Json;
 using Windows.UI.Xaml;
+using WebCamSample;
 
 public class MyClass
 {
@@ -34,7 +35,7 @@ static class AzureIoTHub
     // Note: this connection string is specific to the device "TestDevice". To configure other devices,
     // see information on iothub-explorer at http://aka.ms/iothubgetstartedVSCS
     //
-    const string deviceConnectionString = "HostName=fanie-hub.azure-devices.net;DeviceId=TestDevice;SharedAccessKey=2u1S3oXfAoYuTm0YJc6RqVzQyYKBIbmKkcSOKbZYgdM=";
+    //const string deviceConnectionString = "HostName=fanie-hub.azure-devices.net;DeviceId=TestDevice;SharedAccessKey=2u1S3oXfAoYuTm0YJc6RqVzQyYKBIbmKkcSOKbZYgdM=";
 
     //
     // To monitor messages sent to device "TestDevice" use iothub-explorer as follows:
@@ -45,7 +46,7 @@ static class AzureIoTHub
 
     public static async Task SendDeviceToCloudMessageAsync()
     {
-        var deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Http1);
+        var deviceClient = DeviceClient.CreateFromConnectionString(App.Configuration.IoTHubConnectionString, TransportType.Http1);
 
         var str = "Hello, Cloud!";
         var message = new Message(Encoding.ASCII.GetBytes(str));
@@ -54,7 +55,7 @@ static class AzureIoTHub
     }
     public static async Task SendToHubAsync(object message)
     {
-        var deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Http1);
+        var deviceClient = DeviceClient.CreateFromConnectionString(App.Configuration.IoTHubConnectionString, TransportType.Http1);
 
         var str = JsonConvert.SerializeObject(message);
 
@@ -65,7 +66,7 @@ static class AzureIoTHub
     }
     public static async Task<HubMessage> ReceiveCloudToDeviceMessageAsync()
     {
-        var deviceClient = DeviceClient.CreateFromConnectionString(deviceConnectionString, TransportType.Http1);
+        var deviceClient = DeviceClient.CreateFromConnectionString(App.Configuration.IoTHubConnectionString, TransportType.Http1);
 
         while (true)
         {

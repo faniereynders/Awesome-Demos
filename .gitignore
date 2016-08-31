@@ -3,6 +3,7 @@
 
 # keys
 keys.config
+keys.json
 
 # User-specific files
 *.suo

@@ -10,8 +10,8 @@ namespace WebCamSample
     {
         public static async Task SetColor(string color, bool flash)
         {
-            var client = getClient();
-            client.Initialize("tl3r44HUQ94Mp8uOuHOe7J40Hd2wL5LtgVX9vISI");
+            var client = await getClient();
+            //client.Initialize("tl3r44HUQ94Mp8uOuHOe7J40Hd2wL5LtgVX9vISI");
             var command = new LightCommand();
 
             if (flash)
@@ -24,12 +24,13 @@ namespace WebCamSample
             await client.SendCommandAsync(command);
         }
 
-        private static ILocalHueClient getClient()
+        private static async Task<ILocalHueClient> getClient()
         {
-            //var locator = new HttpBridgeLocator();
-            //var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5));
-            //var ip = bridges.First();
-            return new LocalHueClient("192.168.23.52");
+
+            var locator = new HttpBridgeLocator();
+            var bridges = await locator.LocateBridgesAsync(TimeSpan.FromSeconds(5));
+            var ip = bridges.First();
+            return new LocalHueClient(ip, App.Configuration.PhillipsHueAppKey);
         }
     }
 }

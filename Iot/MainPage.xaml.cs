@@ -64,7 +64,7 @@ namespace WebCamSample
         private readonly string AUDIO_FILE_NAME = "audio.mp3";
         private bool isPreviewing;
         private bool isRecording;
-        private string _blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=faniestorage;AccountKey=aFy7zOM7g3woklnGkT13qp8N4un6vxkkiBbun6Ucxp2TDF4k4fJm2zTllPGC3MG3gTl+zR+Z4LT8y6bIDlBgiA==";
+        //private string _blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=faniestorage;AccountKey=aFy7zOM7g3woklnGkT13qp8N4un6vxkkiBbun6Ucxp2TDF4k4fJm2zTllPGC3MG3gTl+zR+Z4LT8y6bIDlBgiA==";
 
         private readonly SynchronizationContext synchronizationContext;
         private bool isTracking = false;
@@ -305,7 +305,7 @@ namespace WebCamSample
         private async Task<Emotion[]> UploadAndDetectEmotions(string imageFilePath)
         {
             
-            string subscriptionKey = "85c1dff503d54109bffa0e1fe8072059";
+            string subscriptionKey = App.Configuration.MsCognitiveEmotion;
 
             
             var emotionServiceClient = new EmotionServiceClient(subscriptionKey);
@@ -333,24 +333,24 @@ namespace WebCamSample
             // -----------------------------------------------------------------------
 
         }
-        private async Task<CloudBlobContainer> getImagesBlobContainer()
-        {
-            // use the connection string to get the storage account
-            var storageAccount = CloudStorageAccount.Parse(_blobStorageConnectionString);
-            // using the storage account, create the blob client
-            var blobClient = storageAccount.CreateCloudBlobClient();
-            // finally, using the blob client, get a reference to our container
-            var container = blobClient.GetContainerReference("demo");
+        //private async Task<CloudBlobContainer> getImagesBlobContainer()
+        //{
+        //    // use the connection string to get the storage account
+        //    var storageAccount = CloudStorageAccount.Parse(_blobStorageConnectionString);
+        //    // using the storage account, create the blob client
+        //    var blobClient = storageAccount.CreateCloudBlobClient();
+        //    // finally, using the blob client, get a reference to our container
+        //    var container = blobClient.GetContainerReference("demo");
             
-            // by default, blobs are private and would require your access key to download.
-            //   You can allow public access to the blobs by making the container public.   
-            //await container.SetPermissionsAsync(
-            //    new BlobContainerPermissions
-            //    {
-            //        PublicAccess = BlobContainerPublicAccessType.Blob
-            //    });
-            return container;
-        }
+        //    // by default, blobs are private and would require your access key to download.
+        //    //   You can allow public access to the blobs by making the container public.   
+        //    //await container.SetPermissionsAsync(
+        //    //    new BlobContainerPermissions
+        //    //    {
+        //    //        PublicAccess = BlobContainerPublicAccessType.Blob
+        //    //    });
+        //    return container;
+        //}
         //private async Task<string> uploadPhoto(string name, byte[] fileBytes)
         //{
         //    var container = await getImagesBlobContainer();
@@ -497,8 +497,8 @@ namespace WebCamSample
                     data = emotion
                 };
                 var content = new StringContent(JsonConvert.SerializeObject(msg), Encoding.UTF8, "application/json");
-                client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "76677ee160bf4f14af9c8ca23511b9a3");
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QXp1cmVCb290Y2FtcEJvdDo3NjY3N2VlMTYwYmY0ZjE0YWY5YzhjYTIzNTExYjlhMw==");
+               // client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "76677ee160bf4f14af9c8ca23511b9a3");
+               // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QXp1cmVCb290Y2FtcEJvdDo3NjY3N2VlMTYwYmY0ZjE0YWY5YzhjYTIzNTExYjlhMw==");
                 var result = await client.PostAsync("https://awesomebot.azurewebsites.net/api/webhooks", content);
             }
         }

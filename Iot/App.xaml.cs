@@ -22,6 +22,7 @@ namespace WebCamSample
     /// </summary>
     sealed partial class App : Application
     {
+        public static Configuration Configuration { get; set; }
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -30,6 +31,8 @@ namespace WebCamSample
         {           
             this.InitializeComponent();
             this.Suspending += OnSuspending;
+
+            Configuration = Configuration.LoadFrom("keys.json");
         }
 
         /// <summary>
