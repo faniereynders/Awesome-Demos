@@ -179,7 +179,6 @@
     </Compile>
     <Compile Include="HubMessage.cs" />
     <Compile Include="ImageAnalyzer.cs" />
-    <Compile Include="RSVPResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TextAnalysisModels.cs" />
   </ItemGroup>
@@ -187,6 +186,10 @@
     <Content Include="packages.config" />
     <None Include="Properties\PublishProfiles\AwesomeBot - Web Deploy.pubxml" />
     <Content Include="Service References\fanie-hub\ConnectedService.json" />
+    <Content Include="people.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="keys.config" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

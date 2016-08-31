@@ -3,6 +3,7 @@ using Microsoft.ProjectOxford.Vision;
 using Microsoft.ProjectOxford.Vision.Contract;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -37,8 +38,8 @@ namespace AwesomeBot
                     }
                 }
                 var imageStream = await downloader.GetStreamAsync(url);
-
-                var client = new VisionServiceClient("d2949997e11945f1adb1c7fe79a36a75");
+                var subscriptionKey = ConfigurationManager.AppSettings["MsCognitive:ComputerVision"];
+                var client = new VisionServiceClient(subscriptionKey);
                 var features = new VisualFeature[] { VisualFeature.Color, VisualFeature.Description };
                 var result = await client.AnalyzeImageAsync(imageStream, features);
 

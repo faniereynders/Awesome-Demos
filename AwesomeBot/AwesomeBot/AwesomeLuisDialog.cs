@@ -5,6 +5,8 @@ using Microsoft.Bot.Connector;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -14,18 +16,24 @@ using System.Threading.Tasks;
 namespace AwesomeBot
 {
     [Serializable]
-    [LuisModel("8279aa14-ee0f-42b9-b17b-e826e42c34d9", "8369d13268d14267a0218c223c1e61f7")]
     public class AwesomeLuisDialog : LuisDialog<object>
     {
-        protected override Task MessageReceived(IDialogContext context, IAwaitable<IMessageActivity> item)
+        private static ILuisService service
         {
-            return base.MessageReceived(context, item);
+            get
+            {
+                return new LuisService(
+                    new LuisModelAttribute(
+                        ConfigurationManager.AppSettings["LUIS:ModelId"], ConfigurationManager.AppSettings["LUIS:SubscriptionKey"]));
+            }
         }
+        public AwesomeLuisDialog():base(service) { }
+
         [LuisIntent("")]
         public async Task None(IDialogContext context, LuisResult result)
         {
 
-            const string apiKey = "ea5e7640a337437b97a4d9da18a53bd3";
+            var apiKey = ConfigurationManager.AppSettings["MsCognitive:TextAnalytics"];
 
             string queryUri = "https://westus.api.cognitive.microsoft.com/text/analytics/v2.0/sentiment";
 
@@ -145,29 +153,44 @@ namespace AwesomeBot
         public async Task SelectWinner(IDialogContext context, LuisResult result)
         {
             await context.PostAsync("Okay, let me pick a someone...");
-
-            using (var client = new HttpClient())
-            {
-                var response = await client.GetAsync("https://api.meetup.com/fixxup/events/231389959?fields=rsvp_sample&key=3b28723fa625e73c464d1235f4d3e&sign=true");
-                var rsvps = await response.Content.ReadAsAsync<RSVPResponse>();
-
+            var contents = File.ReadAllText($@"{AppContext.BaseDirectory}\people.json");
+            var people = JsonConvert.DeserializeObject<string[]>(contents);
                 var randomizer = new Random();
-                var index = randomizer.Next(0, rsvps.rsvp_sample.Length - 1);
-
-                var winner = rsvps.rsvp_sample[index].member;
-                var text = $"The lucky winner is **{winner.name}** (party)";
+                var index = randomizer.Next(0, people.Length - 1);
+                var winnerName = people[index];
+                var winnerImageUrl = await getImageUrlFromBing(winnerName);
+            
+                var text = $"The lucky winner is **{winnerName}** (party)";
                 var activity = context.MakeMessage();
 
                 activity.Text = text;
-                activity.Attachments = new List<Attachment>() { new Attachment(contentType: "image/jpg", contentUrl: winner.photo.photo_link) };
+                activity.Attachments = new List<Attachment>() { new Attachment(contentType: "image/jpg", contentUrl: winnerImageUrl) };
                 // activity.Recipient = context.
 
 
 
                 await context.PostAsync(activity);
-            }
+
 
             context.Wait(MessageReceived);
+        }
+
+        private async Task<string> getImageUrlFromBing(string name)
+        {
+            using (var client = new HttpClient())
+            {
+                var apiKey = ConfigurationManager.AppSettings["MsCognitive:BingSearch"];
+                var id = ConfigurationManager.AppSettings["BotId"];
+
+                client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", apiKey);
+
+                var uri = $"https://api.cognitive.microsoft.com/bing/v5.0/images/search?q={name}&count=1";
+                var response = await client.GetAsync(uri);
+                var content = await response.Content.ReadAsAsync<dynamic>();
+
+                return content.value[0].thumbnailUrl;
+               
+            }
         }
 
         private async Task confirmEmotionTracking(IDialogContext context, IAwaitable<bool> argument)
