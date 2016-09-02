@@ -14,33 +14,26 @@ namespace AwesomeBot
     // [BotAuthentication]
     public class MessagesController : ApiController
     {
-        /// <summary>
-        /// POST: api/Messages
-        /// Receive a message from a user and reply to it
-        /// </summary>
         public async Task<IHttpActionResult> Post([FromBody]Activity activity)
         {
             var connector = new ConnectorClient(new Uri(activity.ServiceUrl));
 
             if (activity.Type == ActivityTypes.Message)
             {
-                if (activity.Attachments != null && activity.Attachments.Any(_=>_.ContentType.StartsWith("image")))
+                if (activity.Attachments != null && activity.Attachments.Any(_ => _.ContentType.StartsWith("image")))
                 {
                     await imageReceived(connector, activity);
                 }
                 else
                 {
-                    
                     await Conversation.SendAsync(activity, () => new AwesomeLuisDialog());
-                    
                 }
-                
             }
             else
             {
                 HandleSystemMessage(activity);
             }
-           
+
             return Ok();
         }
 
@@ -50,33 +43,24 @@ namespace AwesomeBot
             await connector.Conversations.ReplyToActivityAsync(reply);
 
             var token = string.Empty;
-
-           
-                var imageResult = await ImageAnalyzer.DescribeImage(activity.Attachments[0].ContentUrl, activity.ServiceUrl);
-
-            var color = imageResult.Color.DominantColorForeground;
-
-
-            var colorHex = imageResult.Color.AccentColor;// string.Format("{0:x6}", Color.FromName(color).ToArgb() & 0xFFFFFF);
-
-                await connector.Conversations.ReplyToActivityAsync(activity.CreateReply($@"I see {imageResult.Description.Captions[0].Text}."));
-
-                await Task.Run(() =>
-                {
-                    var hubMessage = new
-                    {
-                        command = "set-color",
-                        payload = colorHex
-                    };
-                    AzureIoTHub.SendMessageAsync(JsonConvert.SerializeObject(hubMessage));
-                });
-                await connector.Conversations.ReplyToActivityAsync(activity.CreateReply($@"Now look how I work my IoT magic using the accent color of this image... (holidayspirit)"));
-
             
+            var imageResult = await ImageAnalyzer.DescribeImage(activity.Attachments[0].ContentUrl, activity.ServiceUrl);
 
+            var colorHex = imageResult.Color.AccentColor;
 
+            await connector.Conversations.ReplyToActivityAsync(activity.CreateReply($@"I see {imageResult.Description.Captions[0].Text}."));
 
-
+            await Task.Run(async () =>
+            {
+                var hubMessage = new
+                {
+                    command = "set-color",
+                    payload = colorHex
+                };
+                await AzureIoTHub.SendMessageAsync(JsonConvert.SerializeObject(hubMessage));
+            });
+            await connector.Conversations.ReplyToActivityAsync(activity.CreateReply($@"Now look how I work my IoT magic using the accent color of this image... (holidayspirit)"));
+            
         }
         private Activity HandleSystemMessage(Activity message)
         {

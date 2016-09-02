@@ -94,6 +94,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <Content Include="Assets\SplashScreen.scale-200.jpg" />
     <Content Include="keys.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -117,7 +118,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <None Include="Service References\fanie-hub\ConnectedService.json" />
     <None Include="WebCamSample_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

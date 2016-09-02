@@ -62,9 +62,7 @@ namespace AwesomeBot.Dialogs
                 double sentimentScore = sentimentJsonResponse.documents[0].score;
 
                 var replyMessage = context.MakeMessage();
-
                 
-
                 if (sentimentScore < 0.7 && sentimentScore > 0.3)
                 {
                     replyMessage.Text = $"I see...";
@@ -94,18 +92,9 @@ namespace AwesomeBot.Dialogs
                     });
                 }
                 
-               
-                
-
                 await context.PostAsync(replyMessage);
-
-
+                
             }
-
-
-          //  await context.PostAsync($"Sorry I did not understand");
-
-
             context.Wait(MessageReceived);
         }
 

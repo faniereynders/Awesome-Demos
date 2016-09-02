@@ -17,15 +17,12 @@ namespace AwesomeBot.Infrastructure
                 var downloader = new HttpClient();
                 
                 var uri = new Uri(url);
-               // if (uri.Host.EndsWith("skype.com") && uri.Scheme == "https")
                 {
                     
                     using (var connectorClient = new ConnectorClient(new Uri(serviceUrl)))
                     {
                         var token = await (connectorClient.Credentials as MicrosoftAppCredentials).GetTokenAsync();
-
-
-
+                        
                         if (!string.IsNullOrEmpty(token))
                         {
                             downloader.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
