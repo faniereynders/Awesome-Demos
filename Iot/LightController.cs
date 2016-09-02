@@ -11,7 +11,6 @@ namespace WebCamSample
         public static async Task SetColor(string color, bool flash)
         {
             var client = await getClient();
-            //client.Initialize("tl3r44HUQ94Mp8uOuHOe7J40Hd2wL5LtgVX9vISI");
             var command = new LightCommand();
 
             if (flash)

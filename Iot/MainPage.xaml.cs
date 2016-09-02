@@ -1,28 +1,4 @@
-﻿/*
-    Copyright(c) Microsoft Open Technologies, Inc. All rights reserved.
-
-    The MIT License(MIT)
-
-    Permission is hereby granted, free of charge, to any person obtaining a copy
-    of this software and associated documentation files(the "Software"), to deal
-    in the Software without restriction, including without limitation the rights
-    to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
-    copies of the Software, and to permit persons to whom the Software is
-    furnished to do so, subject to the following conditions :
-
-    The above copyright notice and this permission notice shall be included in
-    all copies or substantial portions of the Software.
-
-    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
-    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-    THE SOFTWARE.
-*/
-
-using System;
+﻿using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media.Imaging;
@@ -36,25 +12,15 @@ using Microsoft.ProjectOxford.Emotion.Contract;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.WindowsAzure.Storage.Blob;
-using Microsoft.WindowsAzure.Storage;
 using System.Threading;
 using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Text;
 using Newtonsoft.Json;
 
 namespace WebCamSample
 {
-    
-
-
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
     public sealed partial class MainPage : Page
     {
-        //private MediaCapture mediaCapture;
         private Webcam webcam;
         private StorageFile photoFile;
         private StorageFile recordStorageFile;
@@ -64,8 +30,7 @@ namespace WebCamSample
         private readonly string AUDIO_FILE_NAME = "audio.mp3";
         private bool isPreviewing;
         private bool isRecording;
-        //private string _blobStorageConnectionString = "DefaultEndpointsProtocol=https;AccountName=faniestorage;AccountKey=aFy7zOM7g3woklnGkT13qp8N4un6vxkkiBbun6Ucxp2TDF4k4fJm2zTllPGC3MG3gTl+zR+Z4LT8y6bIDlBgiA==";
-
+       
         private readonly SynchronizationContext synchronizationContext;
         private bool isTracking = false;
         #region HELPER_FUNCTIONS
@@ -136,7 +101,6 @@ namespace WebCamSample
             isRecording = false;
             isPreviewing = false;
             synchronizationContext = SynchronizationContext.Current;
-
             
         }
 
@@ -187,44 +151,28 @@ namespace WebCamSample
         {
             if (webcam != null)
             {
-                // Cleanup MediaCapture object
+               
                 if (isPreviewing)
                 {
                     await webcam.StopPreviewAsync();
                     captureImage.Source = null;
-                   // playbackElement.Source = null;
+                   
                     isPreviewing = false;
                 }
                 if (isRecording)
                 {
                     await webcam.StopRecordAsync();
                     isRecording = false;
-                    //recordVideo.Content = "Start Video Record";
-                    //recordAudio.Content = "Start Audio Record";
+                    
                 }                
-               // mediaCapture.Dispose();
-              //  mediaCapture = null;
+               
             }
-            //SetInitButtonVisibility(Action.ENABLE);
+            
         }
 
-        /// <summary>
-        /// 'Initialize Audio and Video' button action function
-        /// Dispose existing MediaCapture object and set it up for audio and video
-        /// Enable or disable appropriate buttons
-        /// - DISABLE 'Initialize Audio and Video' 
-        /// - DISABLE 'Start Audio Record'
-        /// - ENABLE 'Initialize Audio Only'
-        /// - ENABLE 'Start Video Record'
-        /// - ENABLE 'Take Photo'
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         private async Task startWebcamPreview()
         {
-            // Disable all buttons until initialization completes
-
-          //  SetInitButtonVisibility(Action.DISABLE);
+          
             SetVideoButtonVisibility(Action.DISABLE);
             SetAudioButtonVisibility(Action.DISABLE);
 
@@ -232,76 +180,42 @@ namespace WebCamSample
             {
                 if (webcam != null)
                 {
-                    // Cleanup MediaCapture object
+                    
                     if (isPreviewing)
                     {
                         await webcam.StopPreviewAsync();
                         captureImage.Source = null;
-                      //  playbackElement.Source = null;
+                      
                         isPreviewing = false;
                     }
                     if (isRecording)
                     {
                         await webcam.StopRecordAsync();
                         isRecording = false;
-                        //recordVideo.Content = "Start Video Record";
-                        //recordAudio.Content = "Start Audio Record";
+                        
                     }
-                    //mediaCapture.Dispose();
-                    //mediaCapture = null;
+                    
                 }
 
                 status.Text = "Initializing camera to capture audio and video...";
-                // Use default initialization
-                //mediaCapture = new MediaCapture();
-              //  await we.InitializeAsync();                
-
-                // Set callbacks for failure and recording limit exceeded
+                
                 status.Text = "Device successfully initialized for video recording!";
-               // mediaCapture.Failed += new MediaCaptureFailedEventHandler(mediaCapture_Failed);
-               // mediaCapture.RecordLimitationExceeded += new Windows.Media.Capture.RecordLimitationExceededEventHandler(mediaCapture_RecordLimitExceeded);
-
-                // Start Preview                
-              //  previewElement.Source = mediaCapture;
+              
                 await webcam.StartPreviewAsync();
                 isPreviewing = true;
                 status.Text = "Camera preview succeeded";
 
-                // Enable buttons for video and photo capture
+               
                 SetVideoButtonVisibility(Action.ENABLE);
 
-                // Enable Audio Only Init button, leave the video init button disabled
-              //  audio_init.IsEnabled = true;
+                
             }
             catch (Exception ex)
             {
                 status.Text = "Unable to initialize camera for audio/video mode: " + ex.Message;             
             }
         }
-
-        private void cleanup_Click(object sender, RoutedEventArgs e)
-        {
-        //    SetInitButtonVisibility(Action.DISABLE);
-            SetVideoButtonVisibility(Action.DISABLE);
-            SetAudioButtonVisibility(Action.DISABLE);
-            Cleanup();            
-        }
-
         
-        /// <summary>
-        /// 'Initialize Audio Only' button action function
-        /// Dispose existing MediaCapture object and set it up for audio only
-        /// Enable or disable appropriate buttons
-        /// - DISABLE 'Initialize Audio Only' 
-        /// - DISABLE 'Start Video Record'
-        /// - DISABLE 'Take Photo'
-        /// - ENABLE 'Initialize Audio and Video'
-        /// - ENABLE 'Start Audio Record'        
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        
-
         private async Task<Emotion[]> UploadAndDetectEmotions(string imageFilePath)
         {
             
@@ -316,9 +230,6 @@ namespace WebCamSample
                 Emotion[] emotionResult;
                 using (Stream imageFileStream = File.OpenRead(imageFilePath))
                 {
-                    //
-                    // Detect the emotions in the URL
-                    //
                     emotionResult = await emotionServiceClient.RecognizeAsync(imageFileStream);
                     return emotionResult;
                 }
@@ -328,47 +239,9 @@ namespace WebCamSample
                
                 return null;
             }
-            // -----------------------------------------------------------------------
-            // KEY SAMPLE CODE ENDS HERE
-            // -----------------------------------------------------------------------
-
-        }
-        //private async Task<CloudBlobContainer> getImagesBlobContainer()
-        //{
-        //    // use the connection string to get the storage account
-        //    var storageAccount = CloudStorageAccount.Parse(_blobStorageConnectionString);
-        //    // using the storage account, create the blob client
-        //    var blobClient = storageAccount.CreateCloudBlobClient();
-        //    // finally, using the blob client, get a reference to our container
-        //    var container = blobClient.GetContainerReference("demo");
             
-        //    // by default, blobs are private and would require your access key to download.
-        //    //   You can allow public access to the blobs by making the container public.   
-        //    //await container.SetPermissionsAsync(
-        //    //    new BlobContainerPermissions
-        //    //    {
-        //    //        PublicAccess = BlobContainerPublicAccessType.Blob
-        //    //    });
-        //    return container;
-        //}
-        //private async Task<string> uploadPhoto(string name, byte[] fileBytes)
-        //{
-        //    var container = await getImagesBlobContainer();
-        //    // using the container reference, get a block blob reference and set its type
-        //    var blockBlob = container.GetBlockBlobReference(name);
-        //    blockBlob.Properties.ContentType = "image/png";
-        //    // finally, upload the image into blob storage using the block blob reference
-        //  //  var fileBytes = image.Data;
-        //    await blockBlob.UploadFromByteArrayAsync(fileBytes, 0, fileBytes.Length);
-        //    return blockBlob.Uri.ToString();
-        //}
-
-        /// <summary>
-        /// 'Take Photo' button click action function
-        /// Capture image to a file in the default account photos folder
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
+        }
+        
         private async void takePhoto_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -379,7 +252,7 @@ namespace WebCamSample
                 while (isTracking)
                 {
                     takePhoto.IsEnabled = false;
-                    //recordVideo.IsEnabled = false;
+                    
                     captureImage.Source = null;
 
                     photoFile = await KnownFolders.PicturesLibrary.CreateFileAsync(
@@ -393,7 +266,7 @@ namespace WebCamSample
                     await Task.Run(async () =>
                     {
                         
-                        //var imageUrl = await uploadPhoto($"{Guid.NewGuid().ToString()}.png", File.ReadAllBytes(photoFile.Path));
+                        
                         var emotions = await UploadAndDetectEmotions(photoFile.Path);
                         var results = new List<EmotionalEvent>();
                         foreach (var item in emotions)
@@ -407,12 +280,12 @@ namespace WebCamSample
                             emotionData.Add(nameof(item.Scores.Sadness), item.Scores.Sadness);
                             emotionData.Add(nameof(item.Scores.Surprise), item.Scores.Surprise);
                             var result = emotionData
-                                       //.Where(_ => _.Value <= 1)
+                                       
                                        .OrderByDescending(_ => _.Value)
                                        .Select(_ => new EmotionalEvent
                                        {
                                            Emotion = _.Key,
-                                       // date = DateTime.Now
+                                       
                                    }).FirstOrDefault();
                             if (result != null)
                             {
@@ -445,27 +318,7 @@ namespace WebCamSample
                         
                     });
 
-                    // var emotions = await Task.Run<Emotion[]>(async () =>
-                    //{
-                    //    return await UploadAndDetectEmotions(photoFile.Path);
-                    //});
-
-                    // var d = new Dictionary<string, float>();
-
-                    // d.Add("Angry", emotions[0].Scores.Anger);
-                    // d.Add("Contempt", emotions[0].Scores.Contempt);
-                    // d.Add("Disgusted", emotions[0].Scores.Disgust);
-                    // d.Add("Fearful", emotions[0].Scores.Fear);
-                    // d.Add("Happy", emotions[0].Scores.Happiness);
-                    // d.Add("Neutral", emotions[0].Scores.Neutral);
-                    // d.Add("Sad", emotions[0].Scores.Sadness);
-                    // d.Add("Surprised", emotions[0].Scores.Surprise);
-
-
-                    // var results = d.Where(_ => _.Value <= 1).OrderByDescending(_ => _.Value);
-                    // lblEmotion.Text = results.Select(_ => _.Key).FirstOrDefault();
-
-
+                    
                     IRandomAccessStream photoStream = await photoFile.OpenReadAsync();
                     BitmapImage bitmap = new BitmapImage();
                     bitmap.SetSource(photoStream);
@@ -483,7 +336,7 @@ namespace WebCamSample
             finally
             {
                 takePhoto.IsEnabled = true;
-                //recordVideo.IsEnabled = true;
+                
             }
         }
 
@@ -497,96 +350,10 @@ namespace WebCamSample
                     data = emotion
                 };
                 var content = new StringContent(JsonConvert.SerializeObject(msg), Encoding.UTF8, "application/json");
-               // client.DefaultRequestHeaders.Add("Ocp-Apim-Subscription-Key", "76677ee160bf4f14af9c8ca23511b9a3");
-               // client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", "QXp1cmVCb290Y2FtcEJvdDo3NjY3N2VlMTYwYmY0ZjE0YWY5YzhjYTIzNTExYjlhMw==");
                 var result = await client.PostAsync("https://awesomebot.azurewebsites.net/api/webhooks", content);
             }
         }
-
-        /// <summary>
-        /// 'Start Video Record' button click action function
-        /// Button name is changed to 'Stop Video Record' once recording is started
-        /// Records video to a file in the default account videos folder
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-       
-
-        /// <summary>
-        /// 'Start Audio Record' button click action function
-        /// Button name is changes to 'Stop Audio Record' once recording is started
-        /// Records audio to a file in the default account video folder
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
         
-
-        /// <summary>
-        /// Callback function for any failures in MediaCapture operations
-        /// </summary>
-        /// <param name="currentCaptureObject"></param>
-        /// <param name="currentFailure"></param>
-        private async void mediaCapture_Failed(MediaCapture currentCaptureObject, MediaCaptureFailedEventArgs currentFailure)
-        {
-            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-            {
-                try
-                {
-                    status.Text = "MediaCaptureFailed: " + currentFailure.Message;
-
-                    if (isRecording)
-                    {
-                        await webcam.StopRecordAsync();
-                        status.Text += "\n Recording Stopped";
-                    }
-                }
-                catch (Exception)
-                {
-                }
-                finally
-                {
-             //       SetInitButtonVisibility(Action.DISABLE);
-                    SetVideoButtonVisibility(Action.DISABLE);
-                    SetAudioButtonVisibility(Action.DISABLE);
-                    status.Text += "\nCheck if camera is diconnected. Try re-launching the app";                    
-                }
-            });            
-        }
-
-        /// <summary>
-        /// Callback function if Recording Limit Exceeded
-        /// </summary>
-        /// <param name="currentCaptureObject"></param>
-        public async void mediaCapture_RecordLimitExceeded(Windows.Media.Capture.MediaCapture currentCaptureObject)
-        {
-            try
-            {
-                if (isRecording)
-                {
-                    await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                    {
-                        try
-                        {
-                            status.Text = "Stopping Record on exceeding max record duration";
-                            await webcam.StopRecordAsync();
-                            isRecording = false;
-                            //recordAudio.Content = "Start Audio Record";
-                            //recordVideo.Content = "Start Video Record";
-                           
-                        }
-                        catch (Exception e)
-                        {
-                            status.Text = e.Message;
-                        }
-                    });
-                }
-            }
-            catch (Exception e)
-            {
-                status.Text = e.Message;
-            }
-        }
-
         private async void Page_Loaded(object sender, RoutedEventArgs e)
         {
             await webcam.Initialize(previewElement);
